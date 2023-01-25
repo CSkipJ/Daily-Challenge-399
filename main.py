@@ -1,20 +1,33 @@
 class Valdic_Holder:
   """A fancy way to hold a list of valdics. Why am 
-  i making this more complicated."""
+  i making this more complicated. I basically made a class around a list."""
 
   def __init__(self):
     self.valdic_lst = []
 
-  def is_valdic(self, points):
+  def is_valdic(self, points=None, word = None):
     """Returns true if valdic exists in the list. Returns false is it doesn't."""
     if self.valdic_lst:
-      for valdic in self.valdic_lst:
-        if valdic.get_points() == points:
-          return True
-      return False
+      try:
+        if isinstance(points, int):
+          for valdic in self.valdic_lst:
+            if valdic.get_points() == points:
+              return True
+          return False
+      except:
+        print("Value passed to function is_valdic does not match accepted arguments.")
+      try:
+        pass
+        if isinstance(word, str):
+          for valdic in self.valdic_lst:
+            if word in valdic:
+              return True
+          return False
+      except:
+        print("Value passed to function is_valdic does not match accepted arguments.")
     else:
-      return False
-
+        return False
+        
   def get_valdic(self, points):
     for valdic in self.valdic_lst:
       if valdic.get_points() == points:
@@ -24,7 +37,7 @@ class Valdic_Holder:
     self.valdic_lst.append(valdic)
 
   def get_largest(self):
-    largest = Valdic(0)
+    largest = Valdic('')
     for valdic in self.valdic_lst:
       if valdic.len() > largest.len():
         largest = valdic
@@ -33,11 +46,35 @@ class Valdic_Holder:
 #END Class valdic_holder
 
 class Valdic:
-  """Holds a dictionary with a collection of words whose values are all equal to points"""
+  """Value Dictionary. Holds a dictionary with a collection of words whose values are all equal to points"""
 
-  def __init__(self, points):
-    self.points = points
+  alpha = {'a':1,  'b':2,  'c':3,  'd':4,  'e':5,
+         'f':6,  'g':7,  'h':8,  'i':9,  'j':10,
+         'k':11, 'l':12, 'm':13, 'n':14, 'o':15,
+         'p':16, 'q':17, 'r':18, 's':19, 't':20,
+         'u':21, 'v':22, 'w':23, 'x':24, 'y':25,
+         'z':26}
+
+  def word_to_points(word):
+    '''Assigns a numeric value to value word according to the alpha dict'''
+    tot = 0
+    for letter in word:
+      for key, val in Valdic.alpha.items():
+        if letter == key:
+          tot += Valdic.alpha[key]
+    return tot
+
+  def __init__(self, word):
+    '''If called with just points passed in and no word, add_word() should be used immediately after to populate word_list'''
     self.word_list = []
+    self.points = Valdic.word_to_points(word)
+    self.add_word(word)
+
+  def __contains__(self, word):
+    for wrd in self.word_list:
+      if wrd == word:
+        return True
+    return False
 
   def add_word(self, word):
     self.word_list.append(word)
@@ -59,33 +96,19 @@ class Valdic:
 
 # END valdic Class
   
-def word_points(word):
-  tot = 0
-  for letter in word:
-    for key, val in alpha.items():
-      if letter == key:
-        tot += alpha[key]
-  return tot
 
-#END word_points()
-  
-alpha = {'a':1,  'b':2,  'c':3,  'd':4,  'e':5,
-         'f':6,  'g':7,  'h':8,  'i':9,  'j':10,
-         'k':11, 'l':12, 'm':13, 'n':14, 'o':15,
-         'p':16, 'q':17, 'r':18, 's':19, 't':20,
-         'u':21, 'v':22, 'w':23, 'x':24, 'y':25,
-         'z':26}
+
 
 valdic_holder = Valdic_Holder()
 
 with open('word_list.txt') as file_obj:
   for word in file_obj:
-    points = word_points(word)
+    points = Valdic.word_to_points(word)
     if valdic_holder.is_valdic(points):
       valdic = valdic_holder.get_valdic(points)
       valdic.add_word(word)
     else:
-      valdic = Valdic(points)
+      valdic = Valdic(word)
       valdic_holder.add_valdic(valdic)
 
 largest = valdic_holder.get_largest()
